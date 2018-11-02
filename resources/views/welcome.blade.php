@@ -101,7 +101,9 @@
         var map;
         var pusat_kota;
         var pusat_ukm;
+        var drawingManager;
         var wilayah = [];
+        var selectedShape;
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
               center: {lat: -7.327971, lng: 112.791869},
@@ -122,6 +124,9 @@
                     $('.pusat_kota_latitude').val('');
                    $('.pusat_kota_longitude').val('');
                 }
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
+                }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   
                   pusat_kota = new google.maps.Marker({
@@ -139,10 +144,14 @@
                 alert('Marker Pusat Kota Berhasil Diinisialisasi');
                 
             }else if (mode == 'pusat_ukm'){
+
                 if (pusat_ukm != undefined) {
                     pusat_ukm.setMap(null);
                     $('.pusat_ukm_latitude').val('');
                    $('.pusat_ukm_longitude').val('');
+                }
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
                 }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   pusat_ukm = new google.maps.Marker({
@@ -158,8 +167,12 @@
                 alert('Marker Pusat UKM Berhasil Diinisialisasi');
                 
             }else{
-                var drawingManager = new google.maps.drawing.DrawingManager({
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
+                }
+                drawingManager = new google.maps.drawing.DrawingManager({
                     drawingControl: true,
+                    drawingMode: google.maps.drawing.OverlayType.POLYGON,
                     drawingControlOptions: {
                         position: google.maps.ControlPosition.TOP_CENTER,
                         drawingModes: ['polygon']
@@ -176,7 +189,7 @@
                 });
                 drawingManager.setMap(map);
 
-                google.maps.event.addListener(drawingManager, 'polygoncomplete', function(event) {
+                google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event) {
                   var path = event.getPath();
                     for (var i = 0; i < path.length; i++) {
                       wilayah.push({
@@ -185,7 +198,11 @@
                       });
                     }
                     console.log(wilayah);
+                    drawingManager.setMap(null);
                 });
+
+                google.maps.event.addListener(drawingManager, 'drawingmode_changed', clearSelection);
+                google.maps.event.addListener(map, 'click', clearSelection);
             }
         }
 
@@ -196,6 +213,28 @@
                 return false;
             }
         });
+
+        function clearSelection() {
+            if (selectedShape) {
+              selectedShape.setEditable(false);
+              selectedShape = null;
+            }
+        }
+
+        function setSelection(shape) {
+            clearSelection();
+            selectedShape = shape;
+            shape.setEditable(true);
+            selectColor(shape.get('fillColor') || shape.get('strokeColor'));
+        }
+
+        function deleteSelectedShape() {
+            if (selectedShape) {
+              selectedShape.setMap(null);
+            }   
+        }
+
+        
 
         function simpan() {
             $.ajax({
