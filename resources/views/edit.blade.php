@@ -83,6 +83,7 @@
                         </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-warning" onclick="simpan('{{ $data->id }}')">UPDATE</button>
+                            <a href="{{ url('/') }}"><button type="button" class="btn btn-primary">TAMBAH</button></a>
                             <button type="button" class="btn btn-success load">LOAD</button>
                             <button type="button" class="btn btn-danger" onclick="hapus('{{ $data->id }}')">DELETE</button>
                         </div>

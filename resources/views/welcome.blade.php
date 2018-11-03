@@ -123,9 +123,11 @@
         var map;
         var pusat_kota;
         var pusat_ukm;
+        var drawingManager;
         var wilayah = [];
         var wilayah_array = [];
         var drawingReady = '0';
+
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
               center: {lat: -7.327971, lng: 112.791869},
@@ -145,6 +147,9 @@
                     $('.pusat_kota_latitude').val('');
                     $('.pusat_kota_longitude').val('');
                 }
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
+                }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   
                   pusat_kota = new google.maps.Marker({
@@ -159,10 +164,14 @@
                 alert('Marker Pusat Kota Berhasil Diinisialisasi');
                 
             }else if (mode == 'pusat_ukm'){
+
                 if (pusat_ukm != undefined) {
                     pusat_ukm.setMap(null);
                     $('.pusat_ukm_latitude').val('');
                    $('.pusat_ukm_longitude').val('');
+                }
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
                 }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   pusat_ukm = new google.maps.Marker({
@@ -240,6 +249,28 @@
                 return false;
             }
         });
+
+        function clearSelection() {
+            if (selectedShape) {
+              selectedShape.setEditable(false);
+              selectedShape = null;
+            }
+        }
+
+        function setSelection(shape) {
+            clearSelection();
+            selectedShape = shape;
+            shape.setEditable(true);
+            selectColor(shape.get('fillColor') || shape.get('strokeColor'));
+        }
+
+        function deleteSelectedShape() {
+            if (selectedShape) {
+              selectedShape.setMap(null);
+            }   
+        }
+
+        
 
         function simpan() {
             $.ajax({
