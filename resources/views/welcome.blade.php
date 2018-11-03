@@ -26,7 +26,10 @@
             font-family: 'Roboto','sans-serif';
             line-height: 30px;
             padding-left: 10px;
-          }
+        }
+        .error{
+            border: 1px solid red;
+        }
     </style>
     <body onload="initMap()"  style="background-color: grey !important">
         <div class="container"  style="background-color: white !important">
@@ -270,9 +273,26 @@
             }   
         }
 
-        
 
+        $('.wajib').focus(function(){
+            $(this).removeClass('error');
+        })
+        
         function simpan() {
+            var validator        = [];
+            $('.wajib').each(function(){
+                if ($(this).val() == '') {
+                  $(this).addClass('error');
+                  validator.push(0);
+                }
+            })
+
+            var index = validator.indexOf(0);
+            if (index != -1) {
+                alert('Data Input Harus Diisi')
+                return false;
+            }
+
             $.ajax({
                 type: "get",  
                 url: '{{ url('save_wilayah') }}?'+$('.data :input').serialize(),
