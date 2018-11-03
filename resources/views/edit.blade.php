@@ -44,35 +44,35 @@
                     <form class="col-md-6 data">
                         <div class="form-group">
                             <label>Nama Kabupaten</label> 
-                            <input type="text" class="form-control wajib nama_kabupaten" name="nama_kabupaten">
+                            <input value="{{ $data->nama_kabupaten }}" type="text" class="form-control wajib nama_kabupaten" name="nama_kabupaten">
                             <input type="hidden" class="form-control" name="id">
                         </div>
                         <div class="form-group">
                             <label>Nama Bupati</label>
-                            <input type="text" class="form-control wajib nama_bupati" name="nama_bupati">
+                            <input value="{{ $data->nama_bupati }}"  type="text" class="form-control wajib nama_bupati" name="nama_bupati">
                         </div>
                         <div class="form-group">
                             <label>Jumlah Penduduk</label>
-                            <input type="text" class="form-control wajib jumlah_penduduk hanya_angka" name="jumlah_penduduk">
+                            <input value="{{ $data->jumlah_penduduk }}"  type="text" class="form-control wajib jumlah_penduduk hanya_angka" name="jumlah_penduduk">
                         </div>
                         <div class="form-group">
                             <label>Jumlah UKM</label>
-                            <input type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
+                            <input value="{{ $data->jumlah_ukm }}" type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
                         </div>
                         <div class="form-group">
                             <label>Pusat Kota</label>
                             <div class="input-group">
-                                <input type="text" class="form-control pusat_kota_latitude" placeholder="latitude" name="pusat_kota_latitude">
+                                <input value="{{ $data->pusat_kota_latitude }}" type="text" class="form-control pusat_kota_latitude" placeholder="latitude" name="pusat_kota_latitude">
                                 <button type="button" class="btn btn-info" onclick="tambah('pusat_kota')">Tambah</button>
-                                <input type="text" class="form-control pusat_kota_longitude" placeholder="longitude" name="pusat_kota_longitude">
+                                <input value="{{ $data->pusat_kota_longitude }}" type="text" class="form-control pusat_kota_longitude" placeholder="longitude" name="pusat_kota_longitude">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Pusat UKM</label>
                             <div class="input-group">
-                                <input type="text" class="form-control pusat_ukm_latitude" placeholder="latitude" name="pusat_ukm_latitude">
+                                <input value="{{ $data->pusat_ukm_latitude }}" type="text" class="form-control pusat_ukm_latitude" placeholder="latitude" name="pusat_ukm_latitude">
                                 <button type="button" class="btn btn-info" onclick="tambah('pusat_ukm')">Tambah</button>
-                                <input type="text" class="form-control pusat_ukm_longitude" placeholder="longitude" name="pusat_ukm_longitude">
+                                <input value="{{ $data->pusat_ukm_longitude }}" type="text" class="form-control pusat_ukm_longitude" placeholder="longitude" name="pusat_ukm_longitude">
                             </div>
                         </div>
                         <div class="form-group">
@@ -82,8 +82,9 @@
                             </div>
                         </div>
                         <div class="formn-group d-flex justify-content-between">
-                            <button type="button" class="btn btn-primary" onclick="simpan()">SIMPAN</button>
+                            <button type="button" class="btn btn-warning" onclick="simpan('{{ $data->id }}')">UPDATE</button>
                             <button type="button" class="btn btn-success load">LOAD</button>
+                            <button type="button" class="btn btn-danger" onclick="hapus('{{ $data->id }}')">DELETE</button>
                         </div>
                     </form>
                 </div>
@@ -131,6 +132,32 @@
               center: {lat: -7.327971, lng: 112.791869},
               zoom: 10
             });
+
+            var myLatLng = {lat: parseFloat('{{ $data->pusat_kota_latitude }}'), lng: parseFloat('{{ $data->pusat_kota_longitude }}')}
+
+            pusat_kota = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+            });
+
+            var myLatLng = {lat: parseFloat('{{ $data->pusat_ukm_latitude }}'), lng: parseFloat('{{ $data->pusat_ukm_longitude }}')}
+
+            pusat_ukm = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+            });
+            var data = [];
+            @foreach ($data->wilayah_latitude as $i => $d)
+               data.push({lat: parseFloat('{{ $data->wilayah_latitude[$i] }}'), lng: parseFloat('{{ $data->wilayah_longitude[$i] }}')})
+            @endforeach
+            console.log(data);
+
+            // Construct the polygon.
+            wilayah[0] = new google.maps.Polygon({
+                paths: data,
+            });
+
+            wilayah[0].setMap(map);
         }
 
         function deleteMarkers() {
@@ -142,15 +169,18 @@
             if (mode == 'pusat_kota') {
                 if (pusat_kota != undefined) {
                     pusat_kota.setMap(null);
+                    console.log(pusat_kota);
                     $('.pusat_kota_latitude').val('');
                     $('.pusat_kota_longitude').val('');
                 }
+
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   
                   pusat_kota = new google.maps.Marker({
                     position: event.latLng,
                     map: map
                   });
+                  
 
                   $('.pusat_kota_latitude').val(pusat_kota.position.lat);
                   $('.pusat_kota_longitude').val(pusat_kota.position.lng);
@@ -171,7 +201,6 @@
                     draggable: true
 
                   });
-
                   $('.pusat_ukm_latitude').val(pusat_ukm.position.lat);
                   $('.pusat_ukm_longitude').val(pusat_ukm.position.lng);
                 });
@@ -181,7 +210,6 @@
             }else{
                 if (drawingReady == '0') {
                     drawingReady = '1';
-
                     if (wilayah[0] != null) {
                         for (var i = 0; i < wilayah.length; i++) {
                             wilayah[i].setMap(null);
@@ -205,6 +233,7 @@
                             zIndex: 1
                         }
                     });
+
                     drawingManager.setMap(map);
                     drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
 
@@ -217,6 +246,7 @@
                         }
                         drawingManager.setMap(null);
                         drawingReady = '0';
+                        // console.log(wilayah[0].getPath());
                         var path = wilayah[0].getPath();
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
@@ -225,7 +255,9 @@
                           });
                         }
 
+                        console.log(wilayah_array);
                     });
+
                     alert('Wilayah Telah Diinisialisasi');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
@@ -241,15 +273,15 @@
             }
         });
 
-        function simpan() {
+        function simpan(id) {
             $.ajax({
                 type: "get",  
-                url: '{{ url('save_wilayah') }}?'+$('.data :input').serialize(),
-                data:{wilayah:wilayah_array},
+                url: '{{ url('update_wilayah') }}?'+$('.data :input').serialize(),
+                data:{wilayah:wilayah_array,id},
                 dataType:'json',
                 success: function(data){
                     
-                    alert('Berhasil Menyimpan Data');
+                    alert('Berhasil Mengupdate Data');
                     location.reload();
                 },
                 error: function(){
@@ -293,5 +325,4 @@
             location.href = '{{ url('load_wilayah') }}?id='+id;
         }
     </script>
-
 </html>
