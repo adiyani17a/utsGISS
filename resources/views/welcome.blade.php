@@ -199,6 +199,7 @@
                             wilayah[i].setMap(null);
                         }
                         wilayah = [];
+                        wilayah_array = [];
                     }
 
                     var drawingManager = new google.maps.drawing.DrawingManager({
