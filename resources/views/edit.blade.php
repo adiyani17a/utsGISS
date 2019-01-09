@@ -84,6 +84,14 @@
                                 <button style="width: 100%" type="button" class="btn btn-info wilayah" onclick="tambah('wilayah')">Tambah</button>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label>Luas Area</label>
+                            <input type="text" readonly="" value="{{ $data->luas_area }}" class="form-control wajib luas_area hanya_angka" name="luas_area">
+                        </div>
+                        <div class="form-group">
+                            <label>Keliling</label>
+                            <input type="text" readonly="" value="{{ $data->keliling }}" class="form-control wajib keliling hanya_angka" name="keliling">
+                        </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-warning" onclick="simpan('{{ $data->id }}')">UPDATE</button>
                             <a href="{{ url('/') }}"><button type="button" class="btn btn-primary">TAMBAH</button></a>
@@ -250,8 +258,12 @@
                         }
                         drawingManager.setMap(null);
                         drawingReady = '0';
-                        // console.log(wilayah[0].getPath());
                         var path = wilayah[0].getPath();
+                        var measurement = google.maps.geometry.spherical.computeArea(path);
+                        var keliling = google.maps.geometry.spherical.computeLength(path);
+                        $('.luas_area').val(Math.round(measurement) +' M2');
+                        $('.keliling').val(Math.round(length) +' M');
+                        console.log(measurement);
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
                             lat: path.getAt(i).lat(),
@@ -259,10 +271,9 @@
                           });
                         }
 
-                        console.log(wilayah_array);
                     });
-
-                    alert('Wilayah Telah Diinisialisasi');
+                    $('.luas_area').val(Math.round('');
+                    $('.keliling').val(Math.round('');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
                 }

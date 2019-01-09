@@ -38,7 +38,7 @@
                     <div id="floating-panel">
                         <input onclick="deleteMarkers();" type=button value="Delete Markers">
                     </div>
-                    <div class="col-md-6" style="height: 650px;">
+                    <div class="col-md-6" style="height: 800px;">
                         <div id="map"  >
                             
                         </div>
@@ -83,6 +83,14 @@
                             <div class="input-group">
                                 <button style="width: 100%" type="button" class="btn btn-info wilayah" onclick="tambah('wilayah')">Tambah</button>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Luas Area</label>
+                            <input type="text" readonly="" class="form-control wajib luas_area hanya_angka" name="luas_area">
+                        </div>
+                        <div class="form-group">
+                            <label>Keliling</label>
+                            <input type="text" readonly="" class="form-control wajib keliling hanya_angka" name="keliling">
                         </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-primary" onclick="simpan()">SIMPAN</button>
@@ -230,6 +238,10 @@
                         drawingManager.setMap(null);
                         drawingReady = '0';
                         var path = wilayah[0].getPath();
+                        var measurement = google.maps.geometry.spherical.computeArea(path);
+                        var keliling = google.maps.geometry.spherical.computeLength(path);
+                        $('.luas_area').val(Math.round(measurement) +' M2');
+                        $('.keliling').val(Math.round(length) +' M');
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
                             lat: path.getAt(i).lat(),
@@ -238,6 +250,8 @@
                         }
 
                     });
+                    $('.luas_area').val('');
+                    $('.keliling').val('');
                     alert('Wilayah Telah Diinisialisasi');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
