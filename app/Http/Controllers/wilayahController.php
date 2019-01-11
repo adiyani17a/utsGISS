@@ -28,9 +28,10 @@ class wilayahController extends Controller
 
     		for ($i=0; $i < count($key); $i++) { 
     			$save['id'] = $id;
-    			if ($key[$i] != 'wilayah') {
-    				$save[$key[$i]] = $value[$key[$i]];
-    			}
+    			if ($key[$i] == 'wilayah' or $key[$i] == 'wilayah1') {
+    			}else{
+                    $save[$key[$i]] = $value[$key[$i]];
+                }
     		}
     		$lat = '';
     		$lng = '';
@@ -45,9 +46,25 @@ class wilayahController extends Controller
 	    			
     			
     		}
-    		$save['wilayah_latitude'] = $lat;
-			$save['wilayah_longitude'] = $lng;
 
+            $save['wilayah_latitude'] = $lat;
+            $save['wilayah_longitude'] = $lng;
+            $lat = '';
+            $lng = '';
+            for ($i=0; $i < count($req->wilayah1); $i++) { 
+                if ($i == 0) {
+                    $lat = $lat.$req->wilayah1[$i]['lat'];
+                    $lng = $lng.$req->wilayah1[$i]['lng'];
+                }else{
+                    $lat = $lat.','.$req->wilayah1[$i]['lat'];
+                    $lng = $lng.','.$req->wilayah1[$i]['lng'];
+                }
+                    
+                
+            }
+
+            $save['wilayah1_latitude'] = $lat;
+            $save['wilayah1_longitude'] = $lng;
 			DB::table('kota')->insert($save);
     		DB::commit();
 
@@ -74,6 +91,8 @@ class wilayahController extends Controller
         $data->wilayah_latitude = explode(',', $data->wilayah_latitude);
         $data->wilayah_longitude = explode(',', $data->wilayah_longitude);
 
+        $data->wilayah1_latitude = explode(',', $data->wilayah1_latitude);
+        $data->wilayah1_longitude = explode(',', $data->wilayah1_longitude);
         return view('edit',compact('data'));
     }
 
@@ -125,7 +144,7 @@ class wilayahController extends Controller
     {
         DB::beginTransaction();
         try {
-            DB::table('kota')->whecre('id',$req->id)->delete();
+            DB::table('kota')->where('id',$req->id)->delete();
             DB::commit();
             return Response::json(['status'=>1,'pesan'=>'data berhasil dihapus']);
         } catch (Exception $e) {

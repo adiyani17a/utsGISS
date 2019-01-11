@@ -5,6 +5,7 @@
         <!--Import materialize.css-->
         <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.min.css') }}" />
         <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/izitoast/dist/js/iziToast.min.js') }}" />
+        <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/JTS.js') }}" />
         <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
@@ -64,11 +65,11 @@
                         </div>
                         <div class="form-group">
                             <label>Jumlah Penduduk Miskin</label>
-                            <input type="text" class="form-control wajib jumlah_penduduk_miskin hanya_angka" name="jumlah_penduduk_miskin">
+                            <input type="text" value="{{ $data->jumlah_penduduk_miskin }}" class="form-control wajib jumlah_penduduk_miskin hanya_angka" name="jumlah_penduduk_miskin">
                         </div>
                         <div class="form-group">
                             <label>Index Korupsi</label>
-                            <input type="text" class="form-control wajib index_korupsi hanya_angka" name="index_korupsi">
+                            <input type="text" value="{{ $data->index_korupsi }}" class="form-control wajib index_korupsi hanya_angka" name="index_korupsi">
                         </div>
                         <div class="form-group">
                             <label>Pusat Kota</label>
@@ -87,14 +88,32 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Wilayah</label>
+                            <label>Marker 3</label>
+                            <div class="input-group">
+                                <input value="{{ $data->marker3_latitude }}"  type="text" class="form-control marker3_latitude" placeholder="latitude" name="marker3_latitude">
+                                <button type="button" class="btn btn-info" onclick="tambah('marker3')">Tambah</button>
+                                <input value="{{ $data->marker3_latitude }}"  type="text" class="form-control marker3_longitude" placeholder="longitude" name="marker3_longitude">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Wilayah1</label>
                             <div class="input-group">
                                 <button style="width: 100%" type="button" class="btn btn-info wilayah" onclick="tambah('wilayah')">Tambah</button>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Luas Area</label>
+                            <label>Wilayah 2</label>
+                            <div class="input-group">
+                                <button style="width: 100%" type="button" class="btn btn-info wilayah" onclick="tambah('wilayah2')">Tambah</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Luas Area1</label>
                             <input type="text" readonly="" value="{{ $data->luas_area }}" class="form-control wajib luas_area hanya_angka" name="luas_area">
+                        </div>
+                        <div class="form-group">
+                            <label>Luas Area2</label>
+                            <input type="text" readonly="" value="{{ $data->luas_area }}" class="form-control wajib luas_area1 hanya_angka" name="luas_area1">
                         </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-warning" onclick="simpan('{{ $data->id }}')">UPDATE</button>
@@ -140,8 +159,13 @@
         var map;
         var pusat_kota;
         var pusat_ukm;
+        var marker3;
+        var drawingManager;
+        var drawingManager1;
         var wilayah = [];
+        var wilayah1 = [];
         var wilayah_array = [];
+        var wilayah_array1 = [];
         var drawingReady = '0';
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -162,6 +186,14 @@
                 position: myLatLng,
                 map: map,
             });
+
+            var myLatLng = {lat: parseFloat('{{ $data->marker3_latitude }}'), lng: parseFloat('{{ $data->marker3_longitude }}')}
+
+            marker3 = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+            });
+
             var data = [];
             @foreach ($data->wilayah_latitude as $i => $d)
                data.push({lat: parseFloat('{{ $data->wilayah_latitude[$i] }}'), lng: parseFloat('{{ $data->wilayah_longitude[$i] }}')})
@@ -174,6 +206,19 @@
             });
 
             wilayah[0].setMap(map);
+
+            var data1 = [];
+            @foreach ($data->wilayah1_latitude as $i => $d)
+               data1.push({lat: parseFloat('{{ $data->wilayah1_latitude[$i] }}'), lng: parseFloat('{{ $data->wilayah1_longitude[$i] }}')})
+            @endforeach
+            console.log(data1);
+
+            // Construct the polygon.
+            wilayah1[0] = new google.maps.Polygon({
+                paths: data1,
+            });
+
+            wilayah1[0].setMap(map);
         }
 
         function deleteMarkers() {
@@ -185,18 +230,18 @@
             if (mode == 'pusat_kota') {
                 if (pusat_kota != undefined) {
                     pusat_kota.setMap(null);
-                    console.log(pusat_kota);
                     $('.pusat_kota_latitude').val('');
                     $('.pusat_kota_longitude').val('');
                 }
-
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
+                }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   
                   pusat_kota = new google.maps.Marker({
                     position: event.latLng,
                     map: map
                   });
-                  
 
                   $('.pusat_kota_latitude').val(pusat_kota.position.lat);
                   $('.pusat_kota_longitude').val(pusat_kota.position.lng);
@@ -205,10 +250,14 @@
                 alert('Marker Pusat Kota Berhasil Diinisialisasi');
                 
             }else if (mode == 'pusat_ukm'){
+
                 if (pusat_ukm != undefined) {
                     pusat_ukm.setMap(null);
                     $('.pusat_ukm_latitude').val('');
                    $('.pusat_ukm_longitude').val('');
+                }
+                if (drawingManager != undefined) {
+                    drawingManager.setMap(null);
                 }
                 google.maps.event.addListenerOnce(map, 'click', function(event) {
                   pusat_ukm = new google.maps.Marker({
@@ -217,20 +266,113 @@
                     draggable: true
 
                   });
+
                   $('.pusat_ukm_latitude').val(pusat_ukm.position.lat);
                   $('.pusat_ukm_longitude').val(pusat_ukm.position.lng);
                 });
                 
                 alert('Marker Pusat UKM Berhasil Diinisialisasi');
                 
-            }else{
+            }else if(mode == 'wilayah2'){
+                var newShape1;
                 if (drawingReady == '0') {
                     drawingReady = '1';
+
+                    if (wilayah1[0] != null) {
+                        for (var i = 0; i < wilayah1.length; i++) {
+                            wilayah1[i].setMap(null);
+                        }
+                        wilayah1 = [];
+                        wilayah_array1 = [];
+                    }
+
+                    var drawingManager1 = new google.maps.drawing.DrawingManager({
+                        drawingControl: true,
+                        drawingControlOptions: {
+                            position: google.maps.ControlPosition.TOP_CENTER,
+                            drawingModes: ['polygon']
+                        },
+                        markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
+                        circleOptions: {
+                            fillColor: '#ffff00',
+                            fillOpacity: 1,
+                            strokeWeight: 5,
+                            editable: true,
+                            draggable: true,
+                            clickable: true,
+                            zIndex: 1
+                        },
+                        polygonOptions: {
+                            fillColor: '#ffff00',
+                            fillOpacity: 0.6,
+                            strokeWeight: 5,
+                            editable: false,
+                            draggable: true,
+                            clickable: true,
+                            zIndex: 1
+                        }
+                    });
+                    drawingManager1.setMap(map);
+                    drawingManager1.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+
+                    google.maps.event.addListener(drawingManager1, "overlaycomplete", function (event) {
+                        newShape1 = event.overlay;
+                        newShape1.type = event.type;
+                        wilayah1.push(newShape1);
+
+                        if (drawingManager1.getDrawingMode()) {
+                            drawingManager1.setDrawingMode(null);
+                        }
+
+                        drawingManager1.setMap(null);
+                        drawingReady = '0';
+                        var path = wilayah1[0].getPath();
+                        var measurement = google.maps.geometry.spherical.computeArea(path);
+                        $('.luas_area1').val(Math.round(measurement) +' M2');
+                        for (var i = 0; i < path.length; i++) {
+                          wilayah_array1.push({
+                            lat: path.getAt(i).lat(),
+                            lng: path.getAt(i).lng()
+                          });
+                        }
+
+                        newShape1.addListener('dragend', function (event) {
+                            wilayah_array1 = [];
+                            wilayah1.push(newShape1);
+                            if (drawingManager1.getDrawingMode()) {
+                                drawingManager1.setDrawingMode(null);
+                            }
+
+                            drawingManager1.setMap(null);
+                            drawingReady = '0';
+                            var path = wilayah1[0].getPath();
+                            $('.luas_area').val(Math.round(measurement) +' M2');
+                            for (var i = 0; i < path.length; i++) {
+                              wilayah_array1.push({
+                                lat: path.getAt(i).lat(),
+                                lng: path.getAt(i).lng()
+                              });
+                            }
+                            console.log(wilayah_array1);
+                        });
+                    });
+
+                    $('.luas_area1').val('');
+                    alert('Wilayah Telah Diinisialisasi');
+                }else{
+                    alert('Wilayah Sudah Diinisialisasi');
+                }
+            }else{
+                var newShape;
+                if (drawingReady == '0') {
+                    drawingReady = '1';
+
                     if (wilayah[0] != null) {
                         for (var i = 0; i < wilayah.length; i++) {
                             wilayah[i].setMap(null);
                         }
                         wilayah = [];
+                        wilayah_array = [];
                     }
 
                     var drawingManager = new google.maps.drawing.DrawingManager({
@@ -244,28 +386,38 @@
                             fillColor: '#ffff00',
                             fillOpacity: 1,
                             strokeWeight: 5,
-                            clickable: false,
                             editable: true,
+                            draggable: true,
+                            clickable: true,
+                            zIndex: 1
+                        },
+                        polygonOptions: {
+                            fillColor: '#ffff00',
+                            fillOpacity: 0.6,
+                            strokeWeight: 5,
+                            editable: false,
+                            draggable: true,
+                            clickable: true,
                             zIndex: 1
                         }
                     });
-
                     drawingManager.setMap(map);
                     drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
 
                     google.maps.event.addListener(drawingManager, "overlaycomplete", function (event) {
-                        var newShape = event.overlay;
+                        newShape = event.overlay;
                         newShape.type = event.type;
                         wilayah.push(newShape);
+
                         if (drawingManager.getDrawingMode()) {
                             drawingManager.setDrawingMode(null);
                         }
+
                         drawingManager.setMap(null);
                         drawingReady = '0';
                         var path = wilayah[0].getPath();
                         var measurement = google.maps.geometry.spherical.computeArea(path);
                         $('.luas_area').val(Math.round(measurement) +' M2');
-                        console.log(measurement);
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
                             lat: path.getAt(i).lat(),
@@ -273,8 +425,29 @@
                           });
                         }
 
+                        newShape.addListener('dragend', function (event) {
+                            wilayah_array = [];
+                            wilayah.push(newShape);
+                            if (drawingManager.getDrawingMode()) {
+                                drawingManager.setDrawingMode(null);
+                            }
+
+                            drawingManager.setMap(null);
+                            drawingReady = '0';
+                            var path = wilayah[0].getPath();
+                            $('.luas_area').val(Math.round(measurement) +' M2');
+                            for (var i = 0; i < path.length; i++) {
+                              wilayah_array.push({
+                                lat: path.getAt(i).lat(),
+                                lng: path.getAt(i).lng()
+                              });
+                            }
+                            console.log(wilayah_array);
+                        });
                     });
-                    $('.luas_area').val(Math.round('');
+
+                    $('.luas_area').val('');
+                    alert('Wilayah Telah Diinisialisasi');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
                 }
@@ -288,6 +461,133 @@
                 return false;
             }
         });
+
+        var googleMaps2JSTS = function(boundaries) {
+          var coordinates = [];
+          for (var i = 0; i < boundaries.getLength(); i++) {
+            coordinates.push(new jsts.geom.Coordinate(
+              boundaries.getAt(i).lat(), boundaries.getAt(i).lng()));
+          }
+          return coordinates;
+        };
+
+        var jsts2googleMaps = function(geometry) {
+          var coordArray = geometry.getCoordinates();
+          console.log(coordArray);
+          GMcoords = [];
+          for (var i = 0; i < coordArray.length; i++) {
+            GMcoords.push(new google.maps.LatLng(coordArray[i].x, coordArray[i].y));
+          }
+          return GMcoords;
+        }
+
+        function act(param) {
+            if (param == 'union') {
+                // var reader = new jsts.io.WKTReader()
+                // var poly = 'POLYGON((';
+                // var path = wilayah[0].getPath();
+                // for (var i = 0; i < path.length; i++) {
+                //     if (i != path.length -1) {
+                //         poly += path.getAt(i).lat()+' '+path.getAt(i).lng()+',';
+                //     }else{
+                //         poly += path.getAt(i).lat()+' '+path.getAt(i).lng()+'))';
+                //     }
+                // }
+
+                // var poly1 = 'POLYGON((';
+                // var path = wilayah1[0].getPath();
+                // for (var i = 0; i < path.length; i++) {
+                //     if (i != path.length -1) {
+                //         poly1 += path.getAt(i).lat()+' '+path.getAt(i).lng()+',';
+                //     }else{
+                //         poly1 += path.getAt(i).lat()+' '+path.getAt(i).lng()+'))';
+                //     }
+                // }
+
+
+                // var a = reader.read(poly)
+                // var b = reader.read(poly1)
+
+                // var JSTSpolyUnion = a.union(b);
+                // console.log(JSTSpolyUnion);
+                // var outputPath = jsts2googleMaps(JSTSpolyUnion);
+
+                var map = new google.maps.Map(
+                document.getElementById("map"), {
+                    center: {lat: -7.327971, lng: 112.791869},
+                    zoom: 10,
+                });
+                var bounds = new google.maps.LatLngBounds();
+                var poly1 = wilayah[0];
+                var polyPath1 = wilayah_array;
+                for (var i = 0; i < polyPath1.length; i++) {
+                    bounds.extend(new google.maps.LatLng(polyPath1[i].lat, polyPath1[i].lng));
+                }
+                var poly2 = wilayah1[0];
+                var polyPath2 = wilayah_array1;
+                for (var i = 0; i < polyPath2.length; i++) {
+                    bounds.extend(new google.maps.LatLng(polyPath2[i].lat, polyPath2[i].lng));
+                }
+                map.fitBounds(bounds);
+                var geometryFactory = new jsts.geom.GeometryFactory();
+                var JSTSpoly1 = geometryFactory.createPolygon(geometryFactory.createLinearRing(googleMaps2JSTS(poly1.getPath())));
+                JSTSpoly1.normalize();
+                var JSTSpoly2 = geometryFactory.createPolygon(geometryFactory.createLinearRing(googleMaps2JSTS(poly2.getPath())));
+                JSTSpoly2.normalize();
+
+                var JSTSpolyUnion = JSTSpoly1.union(JSTSpoly2);
+                var outputPath = jsts2googleMaps(JSTSpolyUnion);
+
+                var unionPoly = new google.maps.Polygon({
+                    map: map,
+                    paths: outputPath,
+                    strokeColor: '#0000FF',
+                    strokeOpacity: 0.3,
+                    strokeWeight: 2,
+                    fillOpacity: 0.5,
+                    fillColor: '#ffff00',
+                });
+                console.log(unionPoly);
+            }else{
+                var map = new google.maps.Map(
+                document.getElementById("map"), {
+                    center: {lat: -7.327971, lng: 112.791869},
+                    zoom: 10,
+                });
+                var bounds = new google.maps.LatLngBounds();
+                var poly1 = wilayah[0];
+                var polyPath1 = wilayah_array;
+                for (var i = 0; i < polyPath1.length; i++) {
+                    bounds.extend(new google.maps.LatLng(polyPath1[i].lat, polyPath1[i].lng));
+                }
+                var poly2 = wilayah1[0];
+                var polyPath2 = wilayah_array1;
+                for (var i = 0; i < polyPath2.length; i++) {
+                    bounds.extend(new google.maps.LatLng(polyPath2[i].lat, polyPath2[i].lng));
+                }
+                map.fitBounds(bounds);
+                var geometryFactory = new jsts.geom.GeometryFactory();
+                var JSTSpoly1 = geometryFactory.createPolygon(geometryFactory.createLinearRing(googleMaps2JSTS(poly1.getPath())));
+                JSTSpoly1.normalize();
+                var JSTSpoly2 = geometryFactory.createPolygon(geometryFactory.createLinearRing(googleMaps2JSTS(poly2.getPath())));
+                JSTSpoly2.normalize();
+
+                var JSTSpolyUnion = JSTSpoly1.intersection(JSTSpoly2);
+                var outputPath = jsts2googleMaps(JSTSpolyUnion);
+
+                var unionPoly = new google.maps.Polygon({
+                    map: map,
+                    paths: outputPath,
+                    strokeColor: '#0000FF',
+                    strokeOpacity: 0.3,
+                    strokeWeight: 2,
+                    fillOpacity: 0.5,
+                    fillColor: '#ffff00',
+                });
+                console.log(unionPoly);
+            }
+        }
+
 
 
         $('.wajib').focus(function(){

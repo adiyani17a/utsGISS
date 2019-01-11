@@ -5,6 +5,7 @@
         <!--Import materialize.css-->
         <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.min.css') }}" />
         <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/izitoast/dist/js/iziToast.min.js') }}" />
+        <link type="text/css" rel="stylesheet" href="{{ asset('node_modules/JTS.js') }}" />
         <!--Let browser know website is optimized for mobile-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
@@ -38,12 +39,15 @@
                     <div id="floating-panel">
                         <input onclick="deleteMarkers();" type=button value="Delete Markers">
                     </div>
-                    <div class="col-md-6" style="height: 650px;">
+                    <div class="col-md-6" style="height: 700px;">
                         <div id="map"  >
                             
                         </div>
+                        <div class="formn-group d-flex justify-content-between" style="margin-top: 20px;">
+                            <button type="button" class="btn btn-primary" onclick="act('intersect')">INTERSECT</button>
+                            <button type="button" class="btn btn-success" onclick="act('union')">UNION</button>
+                        </div>
                     </div>
-
                     <form class="col-md-6 data">
                         <div class="form-group">
                             <label>Nama Kabupaten</label> 
@@ -61,6 +65,14 @@
                         <div class="form-group">
                             <label>Jumlah UKM</label>
                             <input value="{{ $init->jumlah_ukm }}" type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Penduduk Miskin</label>
+                            <input type="text" value="{{ $init->jumlah_penduduk_miskin }}" class="form-control wajib jumlah_penduduk_miskin hanya_angka" name="jumlah_penduduk_miskin">
+                        </div>
+                        <div class="form-group">
+                            <label>Index Korupsi</label>
+                            <input type="text" class="form-control wajib index_korupsi hanya_angka" name="index_korupsi">
                         </div>
                         <div class="form-group">
                             <label>Pusat Kota</label>
@@ -87,10 +99,6 @@
                         <div class="form-group">
                             <label>Luas Area</label>
                             <input type="text" readonly="" value="{{ $init->luas_area }}" class="form-control wajib luas_area hanya_angka" name="luas_area">
-                        </div>
-                        <div class="form-group">
-                            <label>Keliling</label>
-                            <input type="text" readonly="" value="{{ $init->keliling }}" class="form-control wajib keliling hanya_angka" name="keliling">
                         </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-warning" onclick="simpan('{{ $init->id }}')">UPDATE</button>
@@ -264,9 +272,7 @@
                         drawingReady = '0';
                         var path = wilayah[0].getPath();
                         var measurement = google.maps.geometry.spherical.computeArea(path);
-                        var keliling = google.maps.geometry.spherical.computeLength(path);
                         $('.luas_area').val(Math.round(measurement) +' M2');
-                        $('.keliling').val(Math.round(length) +' M');
                         console.log(measurement);
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
@@ -277,7 +283,6 @@
 
                     });
                     $('.luas_area').val('');
-                    $('.keliling').val('');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
                 }
