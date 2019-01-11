@@ -47,35 +47,35 @@
                     <form class="col-md-6 data">
                         <div class="form-group">
                             <label>Nama Kabupaten</label> 
-                            <input value="{{ $data->nama_kabupaten }}" type="text" class="form-control wajib nama_kabupaten" name="nama_kabupaten">
+                            <input value="{{ $init->nama_kabupaten }}" type="text" class="form-control wajib nama_kabupaten" name="nama_kabupaten">
                             <input type="hidden" class="form-control" name="id">
                         </div>
                         <div class="form-group">
                             <label>Nama Bupati</label>
-                            <input value="{{ $data->nama_bupati }}"  type="text" class="form-control wajib nama_bupati" name="nama_bupati">
+                            <input value="{{ $init->nama_bupati }}"  type="text" class="form-control wajib nama_bupati" name="nama_bupati">
                         </div>
                         <div class="form-group">
                             <label>Jumlah Penduduk</label>
-                            <input value="{{ $data->jumlah_penduduk }}"  type="text" class="form-control wajib jumlah_penduduk hanya_angka" name="jumlah_penduduk">
+                            <input value="{{ $init->jumlah_penduduk }}"  type="text" class="form-control wajib jumlah_penduduk hanya_angka" name="jumlah_penduduk">
                         </div>
                         <div class="form-group">
                             <label>Jumlah UKM</label>
-                            <input value="{{ $data->jumlah_ukm }}" type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
+                            <input value="{{ $init->jumlah_ukm }}" type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
                         </div>
                         <div class="form-group">
                             <label>Pusat Kota</label>
                             <div class="input-group">
-                                <input value="{{ $data->pusat_kota_latitude }}" type="text" class="form-control pusat_kota_latitude" placeholder="latitude" name="pusat_kota_latitude">
+                                <input value="{{ $init->pusat_kota_latitude }}" type="text" class="form-control pusat_kota_latitude" placeholder="latitude" name="pusat_kota_latitude">
                                 <button type="button" class="btn btn-info" onclick="tambah('pusat_kota')">Tambah</button>
-                                <input value="{{ $data->pusat_kota_longitude }}" type="text" class="form-control pusat_kota_longitude" placeholder="longitude" name="pusat_kota_longitude">
+                                <input value="{{ $init->pusat_kota_longitude }}" type="text" class="form-control pusat_kota_longitude" placeholder="longitude" name="pusat_kota_longitude">
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Pusat UKM</label>
                             <div class="input-group">
-                                <input value="{{ $data->pusat_ukm_latitude }}" type="text" class="form-control pusat_ukm_latitude" placeholder="latitude" name="pusat_ukm_latitude">
+                                <input value="{{ $init->pusat_ukm_latitude }}" type="text" class="form-control pusat_ukm_latitude" placeholder="latitude" name="pusat_ukm_latitude">
                                 <button type="button" class="btn btn-info" onclick="tambah('pusat_ukm')">Tambah</button>
-                                <input value="{{ $data->pusat_ukm_longitude }}" type="text" class="form-control pusat_ukm_longitude" placeholder="longitude" name="pusat_ukm_longitude">
+                                <input value="{{ $init->pusat_ukm_longitude }}" type="text" class="form-control pusat_ukm_longitude" placeholder="longitude" name="pusat_ukm_longitude">
                             </div>
                         </div>
                         <div class="form-group">
@@ -86,17 +86,17 @@
                         </div>
                         <div class="form-group">
                             <label>Luas Area</label>
-                            <input type="text" readonly="" value="{{ $data->luas_area }}" class="form-control wajib luas_area hanya_angka" name="luas_area">
+                            <input type="text" readonly="" value="{{ $init->luas_area }}" class="form-control wajib luas_area hanya_angka" name="luas_area">
                         </div>
-                        <div class="form-group" hidden="">
+                        <div class="form-group">
                             <label>Keliling</label>
-                            <input type="text" readonly="" value="{{ $data->keliling }}" class="form-control wajib keliling hanya_angka" name="keliling">
+                            <input type="text" readonly="" value="{{ $init->keliling }}" class="form-control wajib keliling hanya_angka" name="keliling">
                         </div>
                         <div class="formn-group d-flex justify-content-between">
-                            <button type="button" class="btn btn-warning" onclick="simpan('{{ $data->id }}')">UPDATE</button>
+                            <button type="button" class="btn btn-warning" onclick="simpan('{{ $init->id }}')">UPDATE</button>
                             <a href="{{ url('/') }}"><button type="button" class="btn btn-primary">TAMBAH</button></a>
                             <button type="button" class="btn btn-success load">LOAD</button>
-                            <button type="button" class="btn btn-danger" onclick="hapus('{{ $data->id }}')">DELETE</button>
+                            <button type="button" class="btn btn-danger" onclick="hapus('{{ $init->id }}')">DELETE</button>
                         </div>
                     </form>
                 </div>
@@ -145,31 +145,35 @@
               zoom: 10
             });
 
-            var myLatLng = {lat: parseFloat('{{ $data->pusat_kota_latitude }}'), lng: parseFloat('{{ $data->pusat_kota_longitude }}')}
+            @foreach($data as $i => $d)
+                var myLatLng = {lat: parseFloat('{{ $d->pusat_kota_latitude }}'), lng: parseFloat('{{ $d->pusat_kota_longitude }}')}
 
-            pusat_kota = new google.maps.Marker({
-                position: myLatLng,
-                map: map,
-            });
+                pusat_kota = new google.maps.Marker({
+                    position: myLatLng,
+                    map: map,
+                });
 
-            var myLatLng = {lat: parseFloat('{{ $data->pusat_ukm_latitude }}'), lng: parseFloat('{{ $data->pusat_ukm_longitude }}')}
+                var myLatLng = {lat: parseFloat('{{ $d->pusat_ukm_latitude }}'), lng: parseFloat('{{ $d->pusat_ukm_longitude }}')}
 
-            pusat_ukm = new google.maps.Marker({
-                position: myLatLng,
-                map: map,
-            });
-            var data = [];
-            @foreach ($data->wilayah_latitude as $i => $d)
-               data.push({lat: parseFloat('{{ $data->wilayah_latitude[$i] }}'), lng: parseFloat('{{ $data->wilayah_longitude[$i] }}')})
+                pusat_ukm = new google.maps.Marker({
+                    position: myLatLng,
+                    map: map,
+                });
+                var data = [];
+                @foreach ($d->wilayah_latitude as $i1 => $c)
+                   data.push({lat: parseFloat('{{ $d->wilayah_latitude[$i1] }}'), lng: parseFloat('{{ $d->wilayah_longitude[$i1] }}')})
+                @endforeach
+                console.log(data);
+
+                // Construct the polygon.
+                wilayah[0] = new google.maps.Polygon({
+                    paths: data,
+                });
+
+                wilayah[0].setMap(map);
             @endforeach
-            console.log(data);
 
-            // Construct the polygon.
-            wilayah[0] = new google.maps.Polygon({
-                paths: data,
-            });
-
-            wilayah[0].setMap(map);
+            
         }
 
         function deleteMarkers() {

@@ -95,6 +95,7 @@
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-primary" onclick="simpan()">SIMPAN</button>
                             <button type="button" class="btn btn-success load">LOAD</button>
+                            <button type="button" class="btn btn-success load_all">LOAD ALL</button>
                         </div>
                     </form>
                 </div>
@@ -358,6 +359,10 @@
         function loadData(id) {
             location.href = '{{ url('load_wilayah') }}?id='+id;
         }
+
+        $('.load_all').click(function(){
+            location.href = '{{ url('/load_all') }}';
+        });
     </script>
 
 </html>
