@@ -63,6 +63,14 @@
                             <input type="text" class="form-control wajib jumlah_ukm hanya_angka" name="jumlah_ukm">
                         </div>
                         <div class="form-group">
+                            <label>Jumlah Penduduk Miskin</label>
+                            <input type="text" class="form-control wajib jumlah_penduduk_miskin hanya_angka" name="jumlah_penduduk_miskin">
+                        </div>
+                        <div class="form-group">
+                            <label>Index Korupsi</label>
+                            <input type="text" class="form-control wajib index_korupsi hanya_angka" name="index_korupsi">
+                        </div>
+                        <div class="form-group">
                             <label>Pusat Kota</label>
                             <div class="input-group">
                                 <input type="text" class="form-control pusat_kota_latitude" placeholder="latitude" name="pusat_kota_latitude">
@@ -87,10 +95,6 @@
                         <div class="form-group">
                             <label>Luas Area</label>
                             <input type="text" readonly="" class="form-control wajib luas_area hanya_angka" name="luas_area">
-                        </div>
-                        <div class="form-group">
-                            <label>Keliling</label>
-                            <input type="text" readonly="" class="form-control wajib keliling hanya_angka" name="keliling">
                         </div>
                         <div class="formn-group d-flex justify-content-between">
                             <button type="button" class="btn btn-primary" onclick="simpan()">SIMPAN</button>
@@ -240,9 +244,7 @@
                         drawingReady = '0';
                         var path = wilayah[0].getPath();
                         var measurement = google.maps.geometry.spherical.computeArea(path);
-                        var keliling = google.maps.geometry.spherical.computeLength(path);
                         $('.luas_area').val(Math.round(measurement) +' M2');
-                        $('.keliling').val(Math.round(length) +' M');
                         for (var i = 0; i < path.length; i++) {
                           wilayah_array.push({
                             lat: path.getAt(i).lat(),
@@ -252,7 +254,6 @@
 
                     });
                     $('.luas_area').val('');
-                    $('.keliling').val('');
                     alert('Wilayah Telah Diinisialisasi');
                 }else{
                     alert('Wilayah Sudah Diinisialisasi');
