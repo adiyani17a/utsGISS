@@ -125,12 +125,31 @@ class wilayahController extends Controller
     {
         DB::beginTransaction();
         try {
-            DB::table('kota')->where('id',$req->id)->delete();
+            DB::table('kota')->whecre('id',$req->id)->delete();
             DB::commit();
             return Response::json(['status'=>1,'pesan'=>'data berhasil dihapus']);
         } catch (Exception $e) {
             DB::rollBack();
             dd($e);
         }
+    }
+
+    public function load_all(Request $req)
+    {
+        if (!isset($req->id)) {
+            $id = DB::table('kota')->first()->id;
+        }else{
+            $id = $req->id;
+        }
+
+        $init = DB::table('kota')->where('id',$id)->first(); 
+            
+        $data = DB::table('kota')->get();
+        foreach ($data as $i => $d) {
+           $data[$i]->wilayah_latitude = explode(',', $data[$i]->wilayah_latitude);
+           $data[$i]->wilayah_longitude = explode(',', $data[$i]->wilayah_longitude);
+        }
+        
+        return view('load_all',compact('data','init'));
     }
 }

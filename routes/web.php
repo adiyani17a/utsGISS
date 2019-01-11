@@ -17,3 +17,4 @@ Route::get('/show_wilayah', 'wilayahController@show_wilayah')->name('show_wilaya
 Route::get('/load_wilayah', 'wilayahController@load_wilayah')->name('load_wilayah');
 Route::get('/update_wilayah', 'wilayahController@update_wilayah')->name('update_wilayah');
 Route::get('/hapus_wilayah', 'wilayahController@hapus_wilayah')->name('hapus_wilayah');
+Route::get('/load_all', 'wilayahController@load_all')->name('load_all');
